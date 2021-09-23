@@ -1,0 +1,19 @@
+{
+  "name": "ls",
+  "version": "1.0.0",
+  "main": "index.js",
+  "author": "Juan V. Vía <juan.via@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "nodemon --watch './**/*.ts' --exec 'ts-node' ./scripts/index.ts",
+    "create": "yarn build && yarn test",
+    "build": "tsc -p .",
+    "local": "sudo npm i -g && some",
+    "refresh": "rm -rf ./node_modules ./yarn.lock && yarn",
+    "test": "ts-node test"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.12",
+    "ts-node": "^10.2.1"
+  }
+}
