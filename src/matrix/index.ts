@@ -135,34 +135,38 @@ export const scalarProduct = (scalar: number, { rows, cols, data }: Matrix): Mat
 export const gramSchmidt = (A: Matrix): Matrix => {
   // import numpy as np
   // def gram_schmidt(a):
-
+  const arrayNorm = (x: number[]): number => Math.sqrt(x.reduce((sq, xi) => sq + xi * xi, 0))
+  const sub = (a:number[], b:number[]) => a.map((ai,i)=>ai-b[i])
   //   q = []
   const Q: Array<Array<number>> = []
   const a = toArray(A)
   //   for i in range(len(a)):
+  console.log({ length: a.length })
+  let qTilde: number[] = []
   for (let i = 0; i < a.length; ++i) {
     //     #orthogonalization
     //     q_tilde = a[i]
-    let qTilde = a[i]
-    console.log({ qTilde })
+    qTilde = a[i]
     //     for j in range(len(q)):
-    for (let j = 0; j < Q.length; ++i) {
+    for (let j = 0; j < Q.length; ++j) {
       //       q_tilde = q_tilde - (q[j] @ a[i])*q[j]
-      qTilde = toVector(scalarProduct(dot(Q[j], a[i]), fromVector(Q[j])))
+      qTilde = sub(qTilde,toVector(scalarProduct(dot(Q[j], a[i]), fromVector(Q[j]))))
+
+      console.log({qTilde})
       //       #Test for dependennce
       //       if np.sqrt(sum(q_tilde**2)) <= 1e-10:
-      if (qTilde.map(qi => qi * qi).reduce((a, b) => a + b, 0) <= 1e-10) {
+      if (arrayNorm(qTilde) <= 1e-10) {
         //         print('Vectors are linearly dependent.')
         //         print('GS algorithm terminates at iteration ', i+1)
         return fromArray(Q)
       }
-      //       #Normalization
-      //       else:
-      //         q_tilde = q_tilde / np.sqrt(sum(q_tilde**2))
-      //         q.append(q_tilde)
     }
-    Q.push(qTilde.map(qi => qi / qTilde.map(qi => qi * qi).reduce((a, b) => a + b, 0)))
-    console.log({ Q })
+    Q.push(qTilde.map(qi => qi / arrayNorm(qTilde)))
+
+    //       #Normalization
+    //       else:
+    //         q_tilde = q_tilde / np.sqrt(sum(q_tilde**2))
+    //         q.append(q_tilde)
   }
   //   print('Vectors are linearly independent.')
   return fromArray(Q)
