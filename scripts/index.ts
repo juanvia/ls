@@ -1,5 +1,6 @@
 import { pipe } from "fp-ts/lib/function"
 import {
+  //row,
   makeMatrix,
   // make,
   print,

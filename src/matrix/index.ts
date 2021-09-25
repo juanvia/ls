@@ -1,6 +1,19 @@
 import { Matrix } from "./types"
 const js = JSON.stringify
 
+/**
+ * Creates and return a new Matrix 
+ * If not data is given the property "data" contains an empty array of size rows*cols
+ * If data is given must be an array of numbers of size equal to the product of rows
+ * and cols _on row basis_
+ *   
+ * @param  {number} rows Number of rows of the matrix 
+ * @param  {number} cols Number of columns of the matrix
+ * @param  {number[]} data _(Optional)_ An array of numbers of size=rows*cols
+ * @returns {Matrix} The generated Matrix
+ * 
+ * @throws {Error} if data.length != rows*column
+ */
 export const makeMatrix = (rows: number, cols: number, data?: number[]): Matrix => {
   if (data && data.length !== rows * cols) {
     throw new Error(`The matrix must have ${rows * cols} data elements (${rows} times ${cols})`)
@@ -11,8 +24,37 @@ export const makeMatrix = (rows: number, cols: number, data?: number[]): Matrix 
     data: data ? data : new Array<number>(rows * cols),
   }
 }
+/**
+ * @param  {number} size
+ * @param  {number[]} data?
+ * @returns A {rows:1,cols:size} Matrix 
+ */
+export const makeRowVector = (size: number, data?: number[]): Matrix => makeMatrix(1, size, data)
 
-export const make = makeMatrix
+/**
+ * @param  {number} size
+ * @param  {number[]} data?
+ * @returns A {rows:size,cols:1} Matrix
+ */
+export const makeColumnVector = (size: number, data?: number[]): Matrix => makeMatrix(size, 1, data)
+
+export const makeVector = makeColumnVector
+
+export const makeEmpty = (): Matrix => ({ rows: 0, cols: 0, data: [] })
+
+export const clone = (A: Matrix): Matrix => ({ ...A, data: [...A.data] })
+
+export const row = (i: number, { rows, cols, data }: Matrix): Matrix => {
+  if (i < 0 || i >= rows) {
+    throw new RangeError(`Paramenter "i" must fall between 0 and ${rows - 1} (its value is ${i})`)
+  }
+  return { rows: 1, cols, data: data.slice(i * cols, (i + 1) * cols) }
+}
+
+export const appendRow = (A: Matrix, row: Matrix): Matrix => {
+  // TODO: Validate input
+  return { rows: A.rows + 1, cols: A.cols || row.data.length, data: A.data.concat(row.data) }
+}
 
 export const sum = (A: Matrix, B: Matrix): Matrix => {
   // Validate matrices
@@ -35,6 +77,8 @@ export const sum = (A: Matrix, B: Matrix): Matrix => {
   // Return sum
   return sum
 }
+
+export const sub = (A: Matrix, B: Matrix): Matrix => sum(A, smul(-1, B))
 
 export const product = (A: Matrix, B: Matrix): Matrix => {
   // Validate input matrices A and B
@@ -88,7 +132,19 @@ export const innerProduct = (a: number[], b: number[]): number => {
   return dot
 }
 
-export const dot = innerProduct
+export const dot = (x: Matrix, y: Matrix): number => {
+  if ((x.cols !== 1 && x.rows !== 1) || (y.cols !== 1 && y.rows !== 1)) {
+    throw new Error(`Only vectors can be used in scalar product`)
+  }
+  if (x.data.length !== y.data.length) {
+    throw new Error(`The vectors differ in length`)
+  }
+  let innerProduct = 0
+  for (let i = 0; i < x.data.length; ++i) {
+    innerProduct += x.data[i] * y.data[i]
+  }
+  return innerProduct
+}
 
 export const toArray = (A: Matrix): Array<Array<number>> => {
   const rows: number[][] = []
@@ -106,7 +162,7 @@ export const fromArray = (theArray: Array<Array<number>>): Matrix => {
   // TODO: Validate input array
   const rows = theArray.length
   const cols = theArray[0].length
-  const A: Matrix = make(rows, cols)
+  const A: Matrix = makeMatrix(rows, cols)
   for (let i = 0; i < rows; ++i) {
     for (let j = 0; j < cols; ++j) {
       A.data[i * cols + j] = theArray[i][j]
@@ -115,61 +171,65 @@ export const fromArray = (theArray: Array<Array<number>>): Matrix => {
   return A
 }
 
-export const toVector = (A: Matrix): Array<number> => A.data
-
-export const fromVector = (theVector: Array<number>): Matrix => {
-  // TODO: Validate input array
-  const rows = theVector.length
-  const cols = 1
-  const A: Matrix = make(rows, cols)
-  for (let i = 0; i < rows; ++i) {
-    A.data[i] = theVector[i]
-  }
-  return A
-}
-export const scalarProduct = (scalar: number, { rows, cols, data }: Matrix): Matrix => ({
+export const smul = (scalar: number, { rows, cols, data }: Matrix): Matrix => ({
   rows,
   cols,
   data: data.map(a => a * scalar),
 })
-export const gramSchmidt = (A: Matrix): Matrix => {
-  // import numpy as np
-  // def gram_schmidt(a):
-  const arrayNorm = (x: number[]): number => Math.sqrt(x.reduce((sq, xi) => sq + xi * xi, 0))
-  const sub = (a:number[], b:number[]) => a.map((ai,i)=>ai-b[i])
-  //   q = []
-  const Q: Array<Array<number>> = []
-  const a = toArray(A)
-  //   for i in range(len(a)):
-  console.log({ length: a.length })
-  let qTilde: number[] = []
-  for (let i = 0; i < a.length; ++i) {
-    //     #orthogonalization
-    //     q_tilde = a[i]
-    qTilde = a[i]
-    //     for j in range(len(q)):
-    for (let j = 0; j < Q.length; ++j) {
-      //       q_tilde = q_tilde - (q[j] @ a[i])*q[j]
-      qTilde = sub(qTilde,toVector(scalarProduct(dot(Q[j], a[i]), fromVector(Q[j]))))
 
-      console.log({qTilde})
-      //       #Test for dependennce
-      //       if np.sqrt(sum(q_tilde**2)) <= 1e-10:
-      if (arrayNorm(qTilde) <= 1e-10) {
-        //         print('Vectors are linearly dependent.')
-        //         print('GS algorithm terminates at iteration ', i+1)
-        return fromArray(Q)
+// export const gramSchmidt = (A: Matrix): Matrix => {
+//   const arrayNorm = (x: number[]): number => Math.sqrt(x.reduce((sq, xi) => sq + xi * xi, 0))
+//   const sub = (a: number[], b: number[]) => a.map((ai, i) => ai - b[i])
+//   const Q: Array<Array<number>> = []
+//   const a = toArray(A)
+//   let qTilde: number[] = []
+//   for (let i = 0; i < a.length; ++i) {
+//     qTilde = a[i]
+//     for (let j = 0; j < Q.length; ++j) {
+//       qTilde = sub(qTilde, toVector(smul(innerProduct(Q[j], a[i]), fromVector(Q[j]))))
+//       if (arrayNorm(qTilde) <= 1e-10) {
+//         return fromArray(Q) // Premature end because linear dependency
+//       }
+//     }
+//     Q.push(qTilde.map(qi => qi / arrayNorm(qTilde)))
+//   }
+//   return fromArray(Q)
+// }
+
+/**
+ * This is a function.
+ *
+ * @param {Matrix} A - Contains the vector list _in its rows_
+ * @returns {Matrix} A 
+ *
+ * @example
+ *
+ *     foo('hello')
+ */
+export const gramSchmidt = (A: Matrix): Matrix => {
+  
+  // Create the empty list
+  let Q = makeEmpty()
+
+  for (let i = 0; i < A.rows; ++i) {
+    // For each row in the input matrix start with that row as a vector...
+    const ai = row(i, A)
+    // generate q, an orthogonal vector to all the others, if any...
+    let q = clone(ai)
+    for (let j = 0; j < Q.rows; ++j) {
+      const qj = row(j, Q)
+      q = sub(q, smul(dot(qj, ai), qj))
+      // ...and verify linear dependency
+      if (norm(q) <= 1e-10) {
+        return Q // Premature end because linear dependency
       }
     }
-    Q.push(qTilde.map(qi => qi / arrayNorm(qTilde)))
-
-    //       #Normalization
-    //       else:
-    //         q_tilde = q_tilde / np.sqrt(sum(q_tilde**2))
-    //         q.append(q_tilde)
+    // If independent add q normalized to list Q (a Matrix) 
+    q = smul(1 / norm(q), q)
+    Q = appendRow(Q, q)
   }
-  //   print('Vectors are linearly independent.')
-  return fromArray(Q)
+  // Then return the orthonormal basis of our subspace
+  return Q
 }
 
 export const print = (A: Matrix): string => {
