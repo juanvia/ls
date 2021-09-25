@@ -170,45 +170,49 @@ export const fromArray = (theArray: Array<Array<number>>): Matrix => {
   }
   return A
 }
-
+/**
+ * smul - scalar multiplication of a Matrix by a number (scalar)
+ *
+ * @param  {number} scalar: The factor
+ * @param  {} {rows: The "rows" property of the input matrix
+ * @param  {} cols: The "cols" property of the input matrix
+ * @param  {Matrix} data} The "data" property of the input matrix
+ * @returns a Matrix with each element multiplied by the scalar factor
+ * @throws an Error if the data property of the matrix contains a non-numeric value
+ * @example
+ * import { makeMatrix, smul} from "../src/matrix"
+ * const before = makeMatrix(1,3,[1,2,3])
+ * const after = smul(100,before)
+ * console.log({before,after})
+ * // renders: {
+ * //  before: { rows: 1, cols: 3, data: [ 1, 2, 3 ] },
+ * //  after: { rows: 1, cols: 3, data: [ 100, 200, 300 ] }
+ * // }
+ * 
+ */
 export const smul = (scalar: number, { rows, cols, data }: Matrix): Matrix => ({
   rows,
   cols,
   data: data.map(a => a * scalar),
 })
 
-// export const gramSchmidt = (A: Matrix): Matrix => {
-//   const arrayNorm = (x: number[]): number => Math.sqrt(x.reduce((sq, xi) => sq + xi * xi, 0))
-//   const sub = (a: number[], b: number[]) => a.map((ai, i) => ai - b[i])
-//   const Q: Array<Array<number>> = []
-//   const a = toArray(A)
-//   let qTilde: number[] = []
-//   for (let i = 0; i < a.length; ++i) {
-//     qTilde = a[i]
-//     for (let j = 0; j < Q.length; ++j) {
-//       qTilde = sub(qTilde, toVector(smul(innerProduct(Q[j], a[i]), fromVector(Q[j]))))
-//       if (arrayNorm(qTilde) <= 1e-10) {
-//         return fromArray(Q) // Premature end because linear dependency
-//       }
-//     }
-//     Q.push(qTilde.map(qi => qi / arrayNorm(qTilde)))
-//   }
-//   return fromArray(Q)
-// }
-
 /**
- * 
  *
- * @param {Matrix} A - Contains the vector list _in its rows_
- * @returns {Matrix} - Contains the vector list _in its rows_ of the orthonormal basis generated
+ *
+ * @param {Matrix} A The vector list _in its rows_
+ * @returns {Matrix} The vector list (let's name it Q) _in its rows_ of the orthonormal basis generated.
+ * But if Q has fewer rows than A then there is a linear dependency in the vector set of the A rows.
+ * Note then: You must compare the "rows" property between the input matrix and the result to detect that linear
+ * dependency. They must be equal in the linear independency case.
  *
  * @example
- * // From vlms book
+ * // From vlms book...
+ * 
  * import { makeMatrix, print, gramSchmidt} from "../src/matrix"
  * const A = makeMatrix(3, 4, [-1, 1, -1, 1, -1, 3, -1, 3, 1, 3, 5, 7])
  * console.log(print(gramSchmidt(A)))
- * 
- * // renders 
+ *
+ * // renders
  * // [[ -0.5, 0.5, -0.5, 0.5 ]
  * //  [ 0.5, 0.5, 0.5, 0.5 ]
  * //  [ -0.5, -0.5, 0.5, 0.5 ]]

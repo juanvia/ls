@@ -2,6 +2,7 @@ import { pipe } from "fp-ts/lib/function"
 import {
   //row,
   makeMatrix,
+  smul,
   // make,
   print,
   // sum,
@@ -40,3 +41,14 @@ import * as Matrix from "../src/matrix"
 const A = makeMatrix(3, 4, [-1, 1, -1, 1, -1, 3, -1, 3, 1, 3, 5, 7])
 pipe (A, Matrix.gramSchmidt, print, console.log)
 console.log(print(gramSchmidt(A)))
+console.log(print(smul(100,makeMatrix(3,1,[1,2,3]))))
+const before = makeMatrix(1,3,[1,2,3])
+const after = smul(100,before)
+console.log({before,after})
+// renders: {
+//  before: { rows: 1, cols: 3, data: [ 1, 2, 3 ] },
+//  after: { rows: 1, cols: 3, data: [ 100, 200, 300 ] }
+// }
+
+
+
