@@ -10,6 +10,7 @@ import {
   // fromVector,
   // toVector,
   // scalarProduct,
+  gramSchmidt
 } from "../src/matrix"
 import * as Matrix from "../src/matrix"
 // pipe(makeMatrix(1, 5, [1, 2, 3, 5, 8]), print, console.log)
@@ -38,3 +39,4 @@ import * as Matrix from "../src/matrix"
 // pipe([3, 4], fromVector, A => scalarProduct(10, A), toVector, JSON.stringify, console.log)
 const A = makeMatrix(3, 4, [-1, 1, -1, 1, -1, 3, -1, 3, 1, 3, 5, 7])
 pipe (A, Matrix.gramSchmidt, print, console.log)
+console.log(print(gramSchmidt(A)))

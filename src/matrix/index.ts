@@ -2,16 +2,16 @@ import { Matrix } from "./types"
 const js = JSON.stringify
 
 /**
- * Creates and return a new Matrix 
+ * Creates and return a new Matrix
  * If not data is given the property "data" contains an empty array of size rows*cols
  * If data is given must be an array of numbers of size equal to the product of rows
  * and cols _on row basis_
- *   
- * @param  {number} rows Number of rows of the matrix 
+ *
+ * @param  {number} rows Number of rows of the matrix
  * @param  {number} cols Number of columns of the matrix
  * @param  {number[]} data _(Optional)_ An array of numbers of size=rows*cols
  * @returns {Matrix} The generated Matrix
- * 
+ *
  * @throws {Error} if data.length != rows*column
  */
 export const makeMatrix = (rows: number, cols: number, data?: number[]): Matrix => {
@@ -27,7 +27,7 @@ export const makeMatrix = (rows: number, cols: number, data?: number[]): Matrix 
 /**
  * @param  {number} size
  * @param  {number[]} data?
- * @returns A {rows:1,cols:size} Matrix 
+ * @returns A {rows:1,cols:size} Matrix
  */
 export const makeRowVector = (size: number, data?: number[]): Matrix => makeMatrix(1, size, data)
 
@@ -40,7 +40,7 @@ export const makeColumnVector = (size: number, data?: number[]): Matrix => makeM
 
 export const makeVector = makeColumnVector
 
-export const makeEmpty = (): Matrix => ({ rows: 0, cols: 0, data: [] })
+export const makeEmptyMatrix = (): Matrix => ({ rows: 0, cols: 0, data: [] })
 
 export const clone = (A: Matrix): Matrix => ({ ...A, data: [...A.data] })
 
@@ -197,38 +197,44 @@ export const smul = (scalar: number, { rows, cols, data }: Matrix): Matrix => ({
 // }
 
 /**
- * This is a function.
+ * 
  *
  * @param {Matrix} A - Contains the vector list _in its rows_
- * @returns {Matrix} A 
+ * @returns {Matrix} - Contains the vector list _in its rows_ of the orthonormal basis generated
  *
  * @example
- *
- *     foo('hello')
+ * // From vlms book
+ * import { makeMatrix, print, gramSchmidt} from "../src/matrix"
+ * const A = makeMatrix(3, 4, [-1, 1, -1, 1, -1, 3, -1, 3, 1, 3, 5, 7])
+ * console.log(print(gramSchmidt(A)))
+ * 
+ * // renders 
+ * // [[ -0.5, 0.5, -0.5, 0.5 ]
+ * //  [ 0.5, 0.5, 0.5, 0.5 ]
+ * //  [ -0.5, -0.5, 0.5, 0.5 ]]
  */
 export const gramSchmidt = (A: Matrix): Matrix => {
-  
   // Create the empty list
-  let Q = makeEmpty()
+  let Q = makeEmptyMatrix()
 
   for (let i = 0; i < A.rows; ++i) {
-    // For each row in the input matrix start with that row as a vector...
     const ai = row(i, A)
-    // generate q, an orthogonal vector to all the others, if any...
     let q = clone(ai)
+
     for (let j = 0; j < Q.rows; ++j) {
+      // Subtract from q the projections on the others to orthogonalize
       const qj = row(j, Q)
       q = sub(q, smul(dot(qj, ai), qj))
-      // ...and verify linear dependency
+      // Verify that q is not a linear combination of the others
       if (norm(q) <= 1e-10) {
         return Q // Premature end because linear dependency
       }
     }
-    // If independent add q normalized to list Q (a Matrix) 
+    // Append the (normalized) orthogonal vector to list Q
     q = smul(1 / norm(q), q)
     Q = appendRow(Q, q)
   }
-  // Then return the orthonormal basis of our subspace
+  // Q is now the orthonormal basis of our subspace
   return Q
 }
 
