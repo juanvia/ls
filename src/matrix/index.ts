@@ -157,13 +157,21 @@ export const toArray = (A: Matrix): Array<Array<number>> => {
   }
   return rows
 }
-
+/**
+ * Creates a matrix from an array of arrays of numbers
+ * Each elemente of the input array will be treated as a row
+ * @param  {Array<Array<number>>} theArray
+ * @returns The Matrix created from the input array
+ * @example  
+ */
 export const fromArray = (theArray: Array<Array<number>>): Matrix => {
-  // TODO: Validate input array
   const rows = theArray.length
   const cols = theArray[0].length
   const A: Matrix = makeMatrix(rows, cols)
   for (let i = 0; i < rows; ++i) {
+    if (theArray[i].length !== cols) {
+      throw new Error(`Element ${i} is of size ${theArray[i].length}. It must be ${cols}`)
+    }
     for (let j = 0; j < cols; ++j) {
       A.data[i * cols + j] = theArray[i][j]
     }
@@ -173,12 +181,11 @@ export const fromArray = (theArray: Array<Array<number>>): Matrix => {
 /**
  * smul - scalar multiplication of a Matrix by a number (scalar)
  *
- * @param  {number} scalar: The factor
- * @param  {} {rows: The "rows" property of the input matrix
- * @param  {} cols: The "cols" property of the input matrix
- * @param  {Matrix} data} The "data" property of the input matrix
+ * @param  {number} scalar The factor
+ * @param  {Matrix} The Matrix argument. That last argument (the Matrix) is destructured in this
+ * implementation as its ```rows, columns and data``` properties
  * @returns a Matrix with each element multiplied by the scalar factor
- * @throws an Error if the data property of the matrix contains a non-numeric value
+ * @throws an Error if the ```data``` property of the matrix contains a non-numeric value
  * @example
  * import { makeMatrix, smul} from "../src/matrix"
  * const before = makeMatrix(1,3,[1,2,3])
@@ -188,7 +195,7 @@ export const fromArray = (theArray: Array<Array<number>>): Matrix => {
  * //  before: { rows: 1, cols: 3, data: [ 1, 2, 3 ] },
  * //  after: { rows: 1, cols: 3, data: [ 100, 200, 300 ] }
  * // }
- * 
+ *
  */
 export const smul = (scalar: number, { rows, cols, data }: Matrix): Matrix => ({
   rows,
@@ -197,7 +204,8 @@ export const smul = (scalar: number, { rows, cols, data }: Matrix): Matrix => ({
 })
 
 /**
- *
+ * Generates a orthonormal basis of the subspace spanned for the input vector list.
+ * As a bonus detect a linear dependence if exist in the vectors given :)
  *
  * @param {Matrix} A The vector list _in its rows_
  * @returns {Matrix} The vector list (let's name it Q) _in its rows_ of the orthonormal basis generated.
@@ -207,7 +215,7 @@ export const smul = (scalar: number, { rows, cols, data }: Matrix): Matrix => ({
  *
  * @example
  * // From vlms book...
- * 
+ *
  * import { makeMatrix, print, gramSchmidt} from "../src/matrix"
  * const A = makeMatrix(3, 4, [-1, 1, -1, 1, -1, 3, -1, 3, 1, 3, 5, 7])
  * console.log(print(gramSchmidt(A)))
