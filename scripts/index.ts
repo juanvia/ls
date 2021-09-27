@@ -89,4 +89,4 @@ import { makeMatrix, solve, print, makeColumnVector } from "../src/matrix"
 const A=makeMatrix(6,2,[2,1,5,1,7,1,11,1,14,1,18,1])
 const b=makeColumnVector(6,[5,5,8,7,9,7])
 const x=solve(A,b)
-console.log(print(x))
+console.log(print(x)) // --> [[ 0.17183098591549267 ][ 5.200938967136154 ]]
