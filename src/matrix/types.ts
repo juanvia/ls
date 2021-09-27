@@ -3,3 +3,4 @@ export type Matrix = {
   cols: number   // columns
   data: number[] // data
 }
+export type MatrixPair = [Matrix, Matrix]

@@ -1,4 +1,4 @@
-import { Matrix } from "./types"
+import { Matrix, MatrixPair } from "./types"
 const js = JSON.stringify
 
 /**
@@ -80,7 +80,7 @@ export const sum = (A: Matrix, B: Matrix): Matrix => {
 
 export const sub = (A: Matrix, B: Matrix): Matrix => sum(A, smul(-1, B))
 
-export const product = (A: Matrix, B: Matrix): Matrix => {
+export const mul = (A: Matrix, B: Matrix): Matrix => {
   // Validate input matrices A and B
   if (A.cols !== B.rows) {
     throw new Error(`Cannot multiply ${js(A)} with ${js(B)}`)
@@ -103,7 +103,7 @@ export const product = (A: Matrix, B: Matrix): Matrix => {
   return C
 }
 
-export const transpose = (A: Matrix): Matrix => {
+export const tr = (A: Matrix): Matrix => {
   const T = makeMatrix(A.cols, A.rows)
   for (let i = 0; i < A.rows; ++i) {
     for (let j = 0; j < A.cols; ++j) {
@@ -122,16 +122,27 @@ export const norm = (A: Matrix): number => {
   }
   return Math.sqrt(sum)
 }
+/**
+ * @param  {(value:number,index:number,array:number[])=>number} f
+ * @param  {Matrix} A}
+ * @returns Matrix
+ */
+export const map = (
+  f: (value: number, index: number, array: number[]) => number,
+  { rows, cols, data }: Matrix
+): Matrix => ({
+  rows,
+  cols,
+  data: data.map(f),
+})
 
-export const innerProduct = (a: number[], b: number[]): number => {
-  // TODO: Validate input vectors
-  let dot = 0
-  for (let i = 0; i < a.length; ++i) {
-    dot += a[i] * b[i]
-  }
-  return dot
-}
-
+/**
+ * Calculate the dot product, also named inner product or scalar product of
+ * the given vectors.
+ * @param  {Matrix} x
+ * @param  {Matrix} y
+ * @returns number
+ */
 export const dot = (x: Matrix, y: Matrix): number => {
   if ((x.cols !== 1 && x.rows !== 1) || (y.cols !== 1 && y.rows !== 1)) {
     throw new Error(`Only vectors can be used in scalar product`)
@@ -145,7 +156,16 @@ export const dot = (x: Matrix, y: Matrix): number => {
   }
   return innerProduct
 }
-
+/**
+ * @param  {Matrix} A Input Matrix
+ * @returns The array created (of _number[][]_ type), row-wise
+ * @example
+ * import { makeMatrix, toArray } from "../src/matrix"
+ * const A = makeMatrix(2,5,[0,1,2,3,4,5,6,7,8,9])
+ * console.log(toArray(A))
+ * // renders
+ * // [ [ 0, 1, 2, 3, 4 ], [ 5, 6, 7, 8, 9 ] ]
+ */
 export const toArray = (A: Matrix): Array<Array<number>> => {
   const rows: number[][] = []
   for (let i = 0; i < A.rows; ++i) {
@@ -158,11 +178,23 @@ export const toArray = (A: Matrix): Array<Array<number>> => {
   return rows
 }
 /**
- * Creates a matrix from an array of arrays of numbers
- * Each elemente of the input array will be treated as a row
+ * Creates a matrix from an array of arrays of numbers.
+ * Each element of the input array will be treated as a row
  * @param  {Array<Array<number>>} theArray
  * @returns The Matrix created from the input array
- * @example  
+ * @example
+ * import { fromArray } from "../src/matrix"
+ * console.log(fromArray([[0,1,2,3,4],[1,2,4,8,16]]))
+ * // renders
+ * // {
+ * //   rows: 2,
+ * //   cols: 5,
+ * //   data: [
+ * //     0, 1, 2, 3,  4,
+ * //     1, 2, 4, 8, 16
+ * //   ]
+ * // }
+ *
  */
 export const fromArray = (theArray: Array<Array<number>>): Matrix => {
   const rows = theArray.length
@@ -178,11 +210,24 @@ export const fromArray = (theArray: Array<Array<number>>): Matrix => {
   }
   return A
 }
+
+const get = (A: Matrix, i: number, j?: number) => A.data[i * (j ? A.cols : 1) + (j ? j : 0)]
+
+// def back_subst(R,b_tilde):
+//  n = R.shape[0]
+//  x = np.zeros(n)
+//  for i in reversed(range(n)):
+//    x[i] = b_tilde[i]
+//    for j in range(i+1,n):
+//      x[i] = x[i] - R[i,j]*x[j]
+//    x[i] = x[i]/R[i,i]
+//  return x
+
 /**
  * smul - scalar multiplication of a Matrix by a number (scalar)
  *
  * @param  {number} scalar The factor
- * @param  {Matrix} The Matrix argument. That last argument (the Matrix) is destructured in this
+ * @param  {Matrix} desctructured You give a Matrix argument. That last argument (the Matrix) is destructured in this
  * implementation as its ```rows, columns and data``` properties
  * @returns a Matrix with each element multiplied by the scalar factor
  * @throws an Error if the ```data``` property of the matrix contains a non-numeric value
@@ -242,6 +287,7 @@ export const gramSchmidt = (A: Matrix): Matrix => {
         return Q // Premature end because linear dependency
       }
     }
+
     // Append the (normalized) orthogonal vector to list Q
     q = smul(1 / norm(q), q)
     Q = appendRow(Q, q)
@@ -250,6 +296,28 @@ export const gramSchmidt = (A: Matrix): Matrix => {
   return Q
 }
 
+export const qr = (A: Matrix): MatrixPair => {
+  const Q = tr(gramSchmidt(tr(A)))
+  const R = mul(tr(Q), A)
+  return [Q, R]
+}
+
+export const backSubstitution = (R: Matrix, b: Matrix): Matrix => {
+  const x = []
+  for (let eq = 0; eq < R.rows; ++eq) {
+    const i = R.rows - eq - 1
+    x[i] = get(b, i)
+    for (let j = i + 1; j < R.cols; ++j) {
+      x[i] -= get(R, i, j) * x[j]
+    }
+    x[i] /= get(R, i, i)
+  }
+  return makeColumnVector(R.rows, x)
+}
+export const solve = (A:Matrix, b:Matrix): Matrix => {
+  const [Q,R] = qr(A)
+  return backSubstitution(R,mul(tr(Q),b))
+}
 export const print = (A: Matrix): string => {
   let str = ``
   for (let i = 0; i < A.rows; ++i) {
