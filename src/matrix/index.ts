@@ -148,7 +148,18 @@ export const tr = (A: Matrix): Matrix => {
   }
   return T
 }
-
+/**
+ * Gives the norm of the Matrix. Mainly used when it is a vector. The norm of a matrix
+ * is the square root of the sum of the squares of its elements.
+ *  
+ * @param  {Matrix} A
+ * @returns number
+ * @example
+ * import { makeMatrix, norm } from "../src/matrix"
+ * const A = makeMatrix(2, 2, [3,0,0,4])
+ * const b = makeMatrix(2, 1, [3,4])
+ * console.log(norm(A), norm(b)) // --> 5 5
+ */
 export const norm = (A: Matrix): number => {
   let sum = 0
   for (let i = 0; i < A.rows; ++i) {

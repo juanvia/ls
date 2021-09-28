@@ -109,7 +109,7 @@
 //   'get(b,5)': get(b,5),
 // })
 
-import { makeMatrix, map } from "../src/matrix"
-const A = makeMatrix(3, 2, [2, 0.9999999999999998, 2, 0.9999999999999998, 1, 5.000000000000001])
-const B = map(Math.round, A)
-console.log({ A, B })
+import { makeMatrix, norm } from "../src/matrix"
+const A = makeMatrix(2, 2, [3,0,0,4])
+const b = makeMatrix(2, 1, [3,4])
+console.log(norm(A), norm(b))
