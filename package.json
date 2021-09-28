@@ -1,10 +1,11 @@
 {
-  "name": "ls",
+  "name": "@juanvia/matrix",
   "version": "0.1.0",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "author": "Juan V. Vía <juan.via@gmail.com>",
   "license": "MIT",
+  "files": ["lib/*", "lib/matrix/*"],
   "scripts": {
     "start": "nodemon --watch './**/*.ts' --exec 'ts-node' ./scripts/index.ts",
     "create": "yarn build && yarn test",
