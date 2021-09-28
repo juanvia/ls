@@ -50,7 +50,6 @@
 //  after: { rows: 1, cols: 3, data: [ 100, 200, 300 ] }
 // }
 
-
 // import { fromArray } from "../src/matrix"
 // console.log(fromArray([[0,1,2,3,4],[1,2,4,8,16]]))
 
@@ -67,13 +66,12 @@
 // const A = mul(Q, R)
 // console.log({ M, Q, R })
 // console.log({ M, A })
-// console.log({ M, A: map(Math.round, A) })
+// console.log({ M, A })
 
 // import { qr, makeMatrix } from '../src/matrix'
 // const A = makeMatrix(3, 2, [2, 1, 2, 1, 1, 5])
 // const [Q, R] = qr(A)
 // console.log ({A,Q,R})
-
 
 // import { makeMatrix,backSubstitution, makeColumnVector } from "../src/matrix";
 // const R = makeMatrix(3,3,[
@@ -85,8 +83,33 @@
 // const x = backSubstitution(R,b)
 // console.log({R,b,x})
 
-import { makeMatrix, solve, print, makeColumnVector } from "../src/matrix"
-const A=makeMatrix(6,2,[2,1,5,1,7,1,11,1,14,1,18,1])
-const b=makeColumnVector(6,[5,5,8,7,9,7])
-const x=solve(A,b)
-console.log(print(x)) // --> [[ 0.17183098591549267 ][ 5.200938967136154 ]]
+// import { makeMatrix, solve, print, makeColumnVector } from "../src/matrix"
+// const A=makeMatrix(6,2,[2,1,5,1,7,1,11,1,14,1,18,1])
+// const b=makeColumnVector(6,[5,5,8,7,9,7])
+// const x=solve(A,b)
+// console.log(print(x)) // --> [[ 0.17183098591549267 ][ 5.200938967136154 ]]
+
+// import { makeEmptyMatrix } from "../src/matrix"
+// console.log(makeEmptyMatrix())
+
+// import { makeMatrix, get, makeVector, toArray } from "../src/matrix"
+// const A=makeMatrix(6,2,[2,1,5,1,7,1,11,1,14,1,18,1])
+// const b=makeVector(6,[5,5,8,7,9,7])
+// console.log({
+//   A: toArray(A),
+//   b: toArray(b),
+//   'get(A,0,0)': get(A,0,0),
+//   'get(A,5,1)': get(A,5,1),
+//   'get(A,2)': get(A,2),
+//   'get(A,5,0)': get(A,5,0),
+//   'get(A,10)': get(A,10),
+//   'get(A,11)': get(A,11),
+//   'get(b,0)': get(b,0),
+//   'get(b,2)': get(b,2),
+//   'get(b,5)': get(b,5),
+// })
+
+import { makeMatrix, map } from "../src/matrix"
+const A = makeMatrix(3, 2, [2, 0.9999999999999998, 2, 0.9999999999999998, 1, 5.000000000000001])
+const B = map(Math.round, A)
+console.log({ A, B })

@@ -32,30 +32,66 @@ export const makeMatrix = (rows: number, cols: number, data?: number[]): Matrix 
 export const makeRowVector = (size: number, data?: number[]): Matrix => makeMatrix(1, size, data)
 
 /**
+ * Create a Matrix with its cols property fixed in 1
  * @param  {number} size
  * @param  {number[]} data?
  * @returns A {rows:size,cols:1} Matrix
  */
 export const makeColumnVector = (size: number, data?: number[]): Matrix => makeMatrix(size, 1, data)
 
+/**
+ * Alias of makeColumnVector
+ * The default vector in this library is a _column_ vector
+ */
 export const makeVector = makeColumnVector
 
-export const makeEmptyMatrix = (): Matrix => ({ rows: 0, cols: 0, data: [] })
-
+/**
+ * Make an empty matrix (zero rows, zero cols, empty data)
+ * @returns Matrix
+ */
+export const makeEmptyMatrix = (): Matrix => makeMatrix(0, 0)
+/**
+ * Deep copy of a Matrix. The data property is not a reference, is
+ * a fresh new array. Further modification of the new Matrix does not
+ * affect the original one.
+ * @param  {Matrix} A
+ * @returns Matrix
+ */
 export const clone = (A: Matrix): Matrix => ({ ...A, data: [...A.data] })
 
+/**
+ * Extract a copy of one row of che original Matrix in a row vector (also
+ * a Matrix of course, of 1 row by the original matrix columns). Make use of the
+ * slice method of the array in the data property. So further modification of the new Matrix does not
+ * affect the original one.
+ * @param {number} i
+ * @param {Matrix} source
+ * @returns Matrix
+ */
 export const row = (i: number, { rows, cols, data }: Matrix): Matrix => {
   if (i < 0 || i >= rows) {
     throw new RangeError(`Paramenter "i" must fall between 0 and ${rows - 1} (its value is ${i})`)
   }
   return { rows: 1, cols, data: data.slice(i * cols, (i + 1) * cols) }
 }
-
+/**
+ * Returns a Matrix equal to the original but with the given row
+ * appended
+ * @param  {Matrix} A
+ * @param  {Matrix} row
+ * @returns Matrix
+ */
 export const appendRow = (A: Matrix, row: Matrix): Matrix => {
   // TODO: Validate input
   return { rows: A.rows + 1, cols: A.cols || row.data.length, data: A.data.concat(row.data) }
 }
-
+/**
+ * Returns a Matrix whose elements are the sum of the correspondent elements
+ * of the two given Matrices (So they must be of the same size)
+ * @param  {Matrix} A
+ * @param  {Matrix} B
+ * @returns Matrix
+ */
 export const sum = (A: Matrix, B: Matrix): Matrix => {
   // Validate matrices
   if (A.rows !== B.rows || A.cols !== B.cols || A.data.length !== B.data.length) {
@@ -123,9 +159,33 @@ export const norm = (A: Matrix): number => {
   return Math.sqrt(sum)
 }
 /**
+ * Returns a transformed Matrix whose element are numbers result
+ * of the application of a given function (number to number) to
+ * the corespondent elements of the original 
  * @param  {(value:number,index:number,array:number[])=>number} f
  * @param  {Matrix} A}
  * @returns Matrix
+ * @example
+ * import { makeMatrix, map } from "../src/matrix"
+ * const A = makeMatrix(3, 2, [2, 0.9999999999999998, 2, 0.9999999999999998, 1, 5.000000000000001])
+ * const B = map(Math.round, A)
+ * console.log({ A, B })
+ * // renders:
+ * // {
+ * //   A: {
+ * //     rows: 3,
+ * //     cols: 2,
+ * //     data: [
+ * //       2,
+ * //       0.9999999999999998,
+ * //       2,
+ * //       0.9999999999999998,
+ * //       1,
+ * //       5.000000000000001
+ * //     ]
+ * //   },
+ * //   B: { rows: 3, cols: 2, data: [ 2, 1, 2, 1, 1, 5 ] }
+ * // }
  */
 export const map = (
   f: (value: number, index: number, array: number[]) => number,
@@ -210,18 +270,63 @@ export const fromArray = (theArray: Array<Array<number>>): Matrix => {
   }
   return A
 }
+/**
+ * Given a Matrix A returns the value of the element indicated by the subindice(s) given
+ * If you call it with only one index then returns the value of the absolute position 
+ * (row-wise) of the element indicated.
+ * @param  {Matrix} A
+ * @param  {number} i
+ * @param  {number} j?
+ * @returns number
+ * @example
+ * import { makeMatrix, get, makeVector, toArray } from "../src/matrix"
+ * const A=makeMatrix(6,2,[2,1,5,1,7,1,11,1,14,1,18,1])
+ * const b=makeVector(6,[5,5,8,7,9,7])
+ * console.log({
+ *   A: toArray(A),
+ *   b: toArray(b),
+ *   'get(A,0,0)': get(A,0,0),
+ *   'get(A,5,1)': get(A,5,1),
+ *   'get(A,2)': get(A,2),
+ *   'get(A,5,0)': get(A,5,0),
+ *   'get(A,10)': get(A,10),
+ *   'get(A,11)': get(A,11),
+ *   'get(b,0)': get(b,0),
+ *   'get(b,2)': get(b,2),
+ *   'get(b,5)': get(b,5),
+ * })
+ * // renders
+ * // {
+ * //   A: [ [ 2, 1 ], [ 5, 1 ], [ 7, 1 ], [ 11, 1 ], [ 14, 1 ], [ 18, 1 ] ],
+ * //   b: [ [ 5 ], [ 5 ], [ 8 ], [ 7 ], [ 9 ], [ 7 ] ],
+ * //   'get(A,0,0)': 2,
+ * //   'get(A,5,1)': 1,
+ * //   'get(A,2)': 5,
+ * //   'get(A,5,0)': 18,
+ * //   'get(A,10)': 18,
+ * //   'get(A,11)': 1,
+ * //   'get(b,0)': 5,
+ * //   'get(b,2)': 8,
+ * //   'get(b,5)': 7
+ * // }
+ */
+export const get = (A: Matrix, i: number, j?: number | undefined): number => {
+  if (typeof j === "undefined") {
+    if (i < 0 || i >= A.rows * A.cols) {
+      throw new RangeError(`Index i is out of bounds 0 and ${A.rows * A.cols - 1}, it is ${i}`)
+    }
+    return A.data[i]
+  } else {
+    if (i < 0 || i >= A.rows) {
+      throw new RangeError(`Index i is out of bounds 0 and ${A.rows - 1}, it is ${i}`)
+    }
+    if (j < 0 || j >= A.cols) {
+      throw new RangeError(`Index j is out of bounds 0 and ${A.cols - 1}, it is ${j}`)
+    }
+    return A.data[i*A.cols+j]
+  }
 
-const get = (A: Matrix, i: number, j?: number) => A.data[i * (j ? A.cols : 1) + (j ? j : 0)]
-
-// def back_subst(R,b_tilde):
-//  n = R.shape[0]
-//  x = np.zeros(n)
-//  for i in reversed(range(n)):
-//    x[i] = b_tilde[i]
-//    for j in range(i+1,n):
-//      x[i] = x[i] - R[i,j]*x[j]
-//    x[i] = x[i]/R[i,i]
-//  return x
+}
 
 /**
  * smul - scalar multiplication of a Matrix by a number (scalar)
@@ -236,7 +341,8 @@ const get = (A: Matrix, i: number, j?: number) => A.data[i * (j ? A.cols : 1) + 
  * const before = makeMatrix(1,3,[1,2,3])
  * const after = smul(100,before)
  * console.log({before,after})
- * // renders: {
+ * // renders:
+ * // {
  * //  before: { rows: 1, cols: 3, data: [ 1, 2, 3 ] },
  * //  after: { rows: 1, cols: 3, data: [ 100, 200, 300 ] }
  * // }
@@ -265,7 +371,7 @@ export const smul = (scalar: number, { rows, cols, data }: Matrix): Matrix => ({
  * const A = makeMatrix(3, 4, [-1, 1, -1, 1, -1, 3, -1, 3, 1, 3, 5, 7])
  * console.log(print(gramSchmidt(A)))
  *
- * // renders
+ * // renders:
  * // [[ -0.5, 0.5, -0.5, 0.5 ]
  * //  [ 0.5, 0.5, 0.5, 0.5 ]
  * //  [ -0.5, -0.5, 0.5, 0.5 ]]
@@ -295,13 +401,74 @@ export const gramSchmidt = (A: Matrix): Matrix => {
   // Q is now the orthonormal basis of our subspace
   return Q
 }
-
+/**
+ * Returns an array of two Matrices (a MatrixPair) with the result
+ * of the QR decompose of the given Matrix A
+ * @param  {Matrix} A
+ * @returns MatrixPair
+ * @example
+ * import { qr, makeMatrix } from '../src/matrix'
+ * const A = makeMatrix(3, 2, [2, 1, 2, 1, 1, 5])
+ * const [Q, R] = qr(A)
+ * console.log ({A,Q,R})
+ * // renders:
+ * // {
+ * //   A: { rows: 3, cols: 2, data: [ 2, 1, 2, 1, 1, 5 ] },
+ * //   Q: {
+ * //     rows: 3,
+ * //     cols: 2,
+ * //     data: [
+ * //       0.6666666666666666,
+ * //       -0.23570226039551587,
+ * //       0.6666666666666666,
+ * //       -0.23570226039551587,
+ * //       0.3333333333333333,
+ * //       0.9428090415820635
+ * //     ]
+ * //   },
+ * //   R: { rows: 2, cols: 2, data: [ 3, 3, 0, 4.242640687119286 ] }
+ * // }
+ */
 export const qr = (A: Matrix): MatrixPair => {
   const Q = tr(gramSchmidt(tr(A)))
   const R = mul(tr(Q), A)
   return [Q, R]
 }
-
+/**
+ * Return a column vector Matrix. That vector is the solution _x_
+ * of the system of linear equations Rx=b where R is an upper
+ * triangular matrix whose diagonal elements are positive. 
+ * The R Matrix is necessarily square.
+ * The solution is achieved by the back substitution method where
+ * "the variables are found one at a time, starting from xn , and
+we substitute the ones that are known into the remaining equations." 
+ * @param  {Matrix} R
+ * @param  {Matrix} b
+ * @returns Matrix
+ * @example
+ * import { makeMatrix, backSubstitution, makeColumnVector } from "../src/matrix";
+ * const R = makeMatrix(3,3,[
+ *   4,2,5,
+ *   0,1,1,
+ *   0,0,10
+ * ])
+ * const b = makeColumnVector(3,[53,12,70])
+ * const x = backSubstitution(R,b)
+ * console.log({R,b,x})
+ * // renders:
+ * // {
+ * //   R: {
+ * //     rows: 3,
+ * //     cols: 3,
+ * //     data: [
+ * //       4, 2, 5,  0, 1,
+ * //       1, 0, 0, 10
+ * //     ]
+ * //   },
+ * //   b: { rows: 3, cols: 1, data: [ 53, 12, 70 ] },
+ * //   x: { rows: 3, cols: 1, data: [ 2, 5, 7 ] }
+ * // }
+ */
 export const backSubstitution = (R: Matrix, b: Matrix): Matrix => {
   const x = []
   for (let eq = 0; eq < R.rows; ++eq) {
@@ -314,9 +481,33 @@ export const backSubstitution = (R: Matrix, b: Matrix): Matrix => {
   }
   return makeColumnVector(R.rows, x)
 }
-export const solve = (A:Matrix, b:Matrix): Matrix => {
-  const [Q,R] = qr(A)
-  return backSubstitution(R,mul(tr(Q),b))
+/**
+ * Solve the system of linear equations _Ax = b_ finding the vector _x_
+ * such that:
+ *
+ *  - If _A_ is square _x_ is the exact solution. In other words:
+ * _x_ equals the product of the inverse of _A_ with _b_ and the squared
+ * norm of the difference between the product of _A_ and _b_ and _x_ is 0.
+ * ```norm(sub(mul(A,x),b))**2 === 0```
+ *
+ *  - Otherwise _A_ must be tall (its rows number greater than its columns number).
+ * And then, as there is not an exact solution _x_, _x_ is the vector such the
+ * squared norm of the difference between the product of _A_ and _b_ and _x_
+ * is minimal. In other words: x is the best approximation in the **least squares** sense.
+ *
+ * @param  {Matrix} A
+ * @param  {Matrix} b
+ * @returns Matrix
+ * @example
+ * import { makeMatrix, solve, print, makeColumnVector } from "../src/matrix"
+ * const A=makeMatrix(6,2,[2,1,5,1,7,1,11,1,14,1,18,1])
+ * const b=makeColumnVector(6,[5,5,8,7,9,7])
+ * const x=solve(A,b)
+ * console.log(print(x)) // --> [[ 0.17183098591549267 ][ 5.200938967136154 ]]
+ */
+export const solve = (A: Matrix, b: Matrix): Matrix => {
+  const [Q, R] = qr(A)
+  return backSubstitution(R, mul(tr(Q), b))
 }
 export const print = (A: Matrix): string => {
   let str = ``
