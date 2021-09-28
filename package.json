@@ -5,7 +5,10 @@
   "types": "lib/index.d.ts",
   "author": "Juan V. Vía <juan.via@gmail.com>",
   "license": "MIT",
-  "files": ["lib/*", "lib/matrix/*"],
+  "files": [
+    "lib/*",
+    "lib/matrix/*"
+  ],
   "scripts": {
     "start": "nodemon --watch './**/*.ts' --exec 'ts-node' ./scripts/index.ts",
     "create": "yarn build && yarn test",
@@ -15,7 +18,7 @@
     "test": "ts-node test"
   },
   "devDependencies": {
-    "nodemon": "^2.0.12",
+    "nodemon": "^2.0.13",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.2"
   }
