@@ -1,4 +1,6 @@
 import { Matrix, MatrixPair } from "./types"
+export { Matrix, MatrixPair}
+
 const js = JSON.stringify
 
 /**
@@ -396,9 +398,11 @@ export const gramSchmidt = (A: Matrix): Matrix => {
     let q = clone(ai)
 
     for (let j = 0; j < Q.rows; ++j) {
+      
       // Subtract from q the projections on the others to orthogonalize
       const qj = row(j, Q)
       q = sub(q, smul(dot(qj, ai), qj))
+
       // Verify that q is not a linear combination of the others
       if (norm(q) <= 1e-10) {
         return Q // Premature end because linear dependency
@@ -415,6 +419,7 @@ export const gramSchmidt = (A: Matrix): Matrix => {
 /**
  * Returns an array of two Matrices (a MatrixPair) with the result
  * of the QR decompose of the given Matrix A
+ * QR=A
  * @param  {Matrix} A
  * @returns MatrixPair
  * @example
