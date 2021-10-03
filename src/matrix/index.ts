@@ -102,7 +102,11 @@ export const column = (j: number, { rows, cols, data }: Matrix): Matrix => {
  * @returns Matrix
  */
 export const appendRow = (A: Matrix, row: Matrix): Matrix => {
-  // TODO: Validate input
+  if (A.cols !== 0 && A.cols !== row.data.length) {
+    throw new Error(
+      `Cannot append as a row a vector of length ${row.data.length} to a matrix of ${A.cols} columns.`
+    )
+  }
   return { rows: A.rows + 1, cols: A.cols || row.data.length, data: A.data.concat(row.data) }
 }
 /**
@@ -113,16 +117,21 @@ export const appendRow = (A: Matrix, row: Matrix): Matrix => {
  * @returns Matrix
  */
 export const appendColumn = (A: Matrix, column: Matrix): Matrix => {
-  // TODO: Validate input
+  if (A.rows !== 0 && A.rows !== column.data.length) {
+    throw new Error(
+      `Cannot append as a column a vector of length ${column.data.length} to a matrix of ${A.rows} rows.`
+    )
+  }
+  const finalRowCount = A.rows || column.rows
   const newData = []
-  for (let i = 0; i < A.rows; ++i) {
+  for (let i = 0; i < finalRowCount; ++i) {
     for (let j = 0; j < A.cols; ++j) {
       newData.push(A.data[i * A.cols + j])
     }
     newData.push(column.data[i])
   }
 
-  return { cols: A.cols + 1, rows: A.rows, data: newData }
+  return { cols: A.cols + 1, rows: finalRowCount, data: newData }
 }
 /**
  * Returns a Matrix whose elements are the sum of the correspondent elements
