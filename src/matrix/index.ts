@@ -106,6 +106,25 @@ export const appendRow = (A: Matrix, row: Matrix): Matrix => {
   return { rows: A.rows + 1, cols: A.cols || row.data.length, data: A.data.concat(row.data) }
 }
 /**
+ * Returns a Matrix equal to the original but with the given column
+ * appended
+ * @param  {Matrix} A
+ * @param  {Matrix} column
+ * @returns Matrix
+ */
+export const appendColumn = (A: Matrix, column: Matrix): Matrix => {
+  // TODO: Validate input
+  const newData = []
+  for (let i = 0; i < A.rows; ++i) {
+    for (let j = 0; j < A.cols; ++j) {
+      newData.push(A.data[i * A.cols + j])
+    }
+    newData.push(column.data[i])
+  }
+
+  return { cols: A.cols + 1, rows: A.rows, data: newData }
+}
+/**
  * Returns a Matrix whose elements are the sum of the correspondent elements
  * of the two given Matrices (So they must be of the same size)
  * @param  {Matrix} A
