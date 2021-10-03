@@ -18,6 +18,8 @@
     "test": "ts-node test"
   },
   "devDependencies": {
+    "@types/node": "^16.10.2",
+    "@xaviervia/micro-snapshots": "^0.0.5",
     "nodemon": "^2.0.13",
     "ts-node": "^10.2.1",
     "typescript": "^4.4.2"
