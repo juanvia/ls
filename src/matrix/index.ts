@@ -1,5 +1,5 @@
 import { Matrix, MatrixPair } from "./types"
-export { Matrix, MatrixPair}
+export { Matrix, MatrixPair }
 
 const js = JSON.stringify
 
@@ -62,7 +62,7 @@ export const makeEmptyMatrix = (): Matrix => makeMatrix(0, 0)
 export const clone = (A: Matrix): Matrix => ({ ...A, data: [...A.data] })
 
 /**
- * Extract a copy of one row of che original Matrix in a row vector (also
+ * Extract a copy of one row of the original Matrix in a row vector (also
  * a Matrix of course, of 1 row by the original matrix columns). Make use of the
  * slice method of the array in the data property. So further modification of the new Matrix does not
  * affect the original one.
@@ -75,6 +75,24 @@ export const row = (i: number, { rows, cols, data }: Matrix): Matrix => {
     throw new RangeError(`Paramenter "i" must fall between 0 and ${rows - 1} (its value is ${i})`)
   }
   return { rows: 1, cols, data: data.slice(i * cols, (i + 1) * cols) }
+}
+/**
+ * Extract a copy of one column of the original Matrix in a column vector (also
+ * a Matrix of course, of 1 column by the original matrix rows).
+ * @param {number} j
+ * @param {Matrix} source
+ * @returns Matrix
+ */
+export const column = (j: number, { rows, cols, data }: Matrix): Matrix => {
+  if (j < 0 || j >= cols) {
+    throw new RangeError(`Paramenter "i" must fall between 0 and ${cols - 1} (its value is ${j})`)
+  }
+  const newData = []
+  for (let i = 0; i < rows; ++i) {
+    newData.push(data[i * cols + j])
+  }
+
+  return { cols: 1, rows, data: newData }
 }
 /**
  * Returns a Matrix equal to the original but with the given row
@@ -153,7 +171,7 @@ export const tr = (A: Matrix): Matrix => {
 /**
  * Gives the norm of the Matrix. Mainly used when it is a vector. The norm of a matrix
  * is the square root of the sum of the squares of its elements.
- *  
+ *
  * @param  {Matrix} A
  * @returns number
  * @example
@@ -174,7 +192,7 @@ export const norm = (A: Matrix): number => {
 /**
  * Returns a transformed Matrix whose element are numbers result
  * of the application of a given function (number to number) to
- * the corespondent elements of the original 
+ * the corespondent elements of the original
  * @param  {(value:number,index:number,array:number[])=>number} f
  * @param  {Matrix} A}
  * @returns Matrix
@@ -285,7 +303,7 @@ export const fromArray = (theArray: Array<Array<number>>): Matrix => {
 }
 /**
  * Given a Matrix A returns the value of the element indicated by the subindice(s) given
- * If you call it with only one index then returns the value of the absolute position 
+ * If you call it with only one index then returns the value of the absolute position
  * (row-wise) of the element indicated.
  * @param  {Matrix} A
  * @param  {number} i
@@ -336,9 +354,8 @@ export const get = (A: Matrix, i: number, j?: number | undefined): number => {
     if (j < 0 || j >= A.cols) {
       throw new RangeError(`Index j is out of bounds 0 and ${A.cols - 1}, it is ${j}`)
     }
-    return A.data[i*A.cols+j]
+    return A.data[i * A.cols + j]
   }
-
 }
 
 /**
@@ -398,7 +415,6 @@ export const gramSchmidt = (A: Matrix): Matrix => {
     let q = clone(ai)
 
     for (let j = 0; j < Q.rows; ++j) {
-      
       // Subtract from q the projections on the others to orthogonalize
       const qj = row(j, Q)
       q = sub(q, smul(dot(qj, ai), qj))
