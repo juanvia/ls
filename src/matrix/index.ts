@@ -16,7 +16,7 @@ const js = JSON.stringify
  *
  * @throws {Error} if data.length != rows*column
  */
-export const makeMatrix = (rows: number, cols: number, data?: number[]): Matrix => {
+export const makeMatrix = (rows: number, cols: number, data: number[]): Matrix => {
   if (data && data.length !== rows * cols) {
     throw new Error(`The matrix must have ${rows * cols} data elements (${rows} times ${cols})`)
   }
@@ -31,7 +31,7 @@ export const makeMatrix = (rows: number, cols: number, data?: number[]): Matrix 
  * @param  {number[]} data?
  * @returns A {rows:1,cols:size} Matrix
  */
-export const makeRowVector = (size: number, data?: number[]): Matrix => makeMatrix(1, size, data)
+export const makeRowVector = (size: number, data: number[]): Matrix => makeMatrix(1, size, data)
 
 /**
  * Create a Matrix with its cols property fixed in 1
@@ -39,7 +39,7 @@ export const makeRowVector = (size: number, data?: number[]): Matrix => makeMatr
  * @param  {number[]} data?
  * @returns A {rows:size,cols:1} Matrix
  */
-export const makeColumnVector = (size: number, data?: number[]): Matrix => makeMatrix(size, 1, data)
+export const makeColumnVector = (size: number, data: number[]): Matrix => makeMatrix(size, 1, data)
 
 /**
  * Alias of makeColumnVector
@@ -51,7 +51,7 @@ export const makeVector = makeColumnVector
  * Make an empty matrix (zero rows, zero cols, empty data)
  * @returns Matrix
  */
-export const makeEmptyMatrix = (): Matrix => makeMatrix(0, 0)
+export const makeEmptyMatrix = (): Matrix => makeMatrix(0, 0, [])
 /**
  * Deep copy of a Matrix. The data property is not a reference, is
  * a fresh new array. Further modification of the new Matrix does not
@@ -149,7 +149,7 @@ export const sum = (A: Matrix, B: Matrix): Matrix => {
   // Initialize calc
   const m = A.rows
   const n = A.cols
-  const sum = makeMatrix(m, n)
+  const sum = makeMatrix(m, n, new Array(A.rows*A.cols))
 
   // Calculate sum
   for (let i = 0; i < m; ++i) {
@@ -171,7 +171,7 @@ export const mul = (A: Matrix, B: Matrix): Matrix => {
   }
 
   // Initialize product matrix C
-  const C = makeMatrix(A.rows, B.cols)
+  const C = makeMatrix(A.rows, B.cols, new Array(A.rows*A.cols))
 
   // Calculate product matrix P
   for (let i = 0; i < C.rows; ++i) {
@@ -188,7 +188,7 @@ export const mul = (A: Matrix, B: Matrix): Matrix => {
 }
 
 export const tr = (A: Matrix): Matrix => {
-  const T = makeMatrix(A.cols, A.rows)
+  const T = makeMatrix(A.cols, A.rows, new Array(A.rows, A.cols))
   for (let i = 0; i < A.rows; ++i) {
     for (let j = 0; j < A.cols; ++j) {
       T.data[j * A.rows + i] = A.data[i * A.cols + j]
@@ -318,7 +318,7 @@ export const toArray = (A: Matrix): Array<Array<number>> => {
 export const fromArray = (theArray: Array<Array<number>>): Matrix => {
   const rows = theArray.length
   const cols = theArray[0].length
-  const A: Matrix = makeMatrix(rows, cols)
+  const A: Matrix = makeMatrix(rows, cols, [])
   for (let i = 0; i < rows; ++i) {
     if (theArray[i].length !== cols) {
       throw new Error(`Element ${i} is of size ${theArray[i].length}. It must be ${cols}`)
