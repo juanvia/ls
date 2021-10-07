@@ -1,26 +1,28 @@
 // import { pipe } from "fp-ts/lib/function"
 // import {
-//   //row,
-//   makeMatrix,
-//   smul,
-//   // make,
-//   print,
-//   // sum,
-//   // norm,
-//   // dot,
-//   // fromVector,
-//   // toVector,
-//   // scalarProduct,
-//   gramSchmidt,
+//   //   //row,
+//   //   makeMatrix,
+//   //   smul,
+//   //   // make,
+//   //   print,
+//   //   // sum,
+//   //   // norm,
+//   //   // dot,
+//   //   // fromVector,
+//   //   // toVector,
+//   //   // scalarProduct,
+//   fromArray,
+//   toArray,
+//   //   gramSchmidt,
 // } from "../src/matrix"
-// import * as Matrix from "../src/matrix"
+import * as Matrix from "../src/matrix"
 // pipe(makeMatrix(1, 5, [1, 2, 3, 5, 8]), print, console.log)
 // const a = makeMatrix(1, 5, [1, 2, 3, 5, 8])
 // const b = makeMatrix(1, 5, [1, 3, 5, 7, 11])
 // pipe(a, print, console.log)
 // pipe(b, print, console.log)
 // pipe(sum(a, b), print, console.log)
-// const d = makeMatrix(2, 2, [1, 3, 5, 8])
+const d = Matrix.makeMatrix(2, 2, [1, 3, 5, 8])
 // const e = makeMatrix(2, 2, [100, 100, 100, 100])
 // pipe(d, print, console.log)
 // pipe(e, print, console.log)
@@ -35,6 +37,7 @@
 // pipe(make(2, 1, [3, 4]), norm, console.log) // So Pythagoras was right
 // pipe(d, Matrix.toArray, JSON.stringify, console.log)
 // pipe(d, Matrix.toArray, Matrix.fromArray, Matrix.toArray, JSON.stringify, console.log)
+console.log(JSON.stringify(Matrix.toArray(Matrix.fromArray(Matrix.toArray(d)))))
 // pipe([3, 4], Matrix.fromVector, Matrix.toVector, JSON.stringify, console.log)
 // pipe([3, 4], v => dot(v, [3, 4]), console.log)
 // pipe([3, 4], fromVector, A => scalarProduct(10, A), toVector, JSON.stringify, console.log)
@@ -109,7 +112,7 @@
 //   'get(b,5)': get(b,5),
 // })
 
-import { makeMatrix, norm } from "../src/matrix"
-const A = makeMatrix(2, 2, [3,0,0,4])
-const b = makeMatrix(2, 1, [3,4])
+import { fromArray, makeMatrix, norm } from "../src/matrix"
+const A = makeMatrix(2, 2, [3, 0, 0, 4])
+const b = makeMatrix(2, 1, [3, 4])
 console.log(norm(A), norm(b))

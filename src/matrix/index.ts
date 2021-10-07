@@ -318,7 +318,7 @@ export const toArray = (A: Matrix): Array<Array<number>> => {
 export const fromArray = (theArray: Array<Array<number>>): Matrix => {
   const rows = theArray.length
   const cols = theArray[0].length
-  const A: Matrix = makeMatrix(rows, cols, [])
+  const A: Matrix = makeMatrix(rows, cols, new Array(rows*cols))
   for (let i = 0; i < rows; ++i) {
     if (theArray[i].length !== cols) {
       throw new Error(`Element ${i} is of size ${theArray[i].length}. It must be ${cols}`)
