@@ -149,7 +149,7 @@ export const sum = (A: Matrix, B: Matrix): Matrix => {
   // Initialize calc
   const m = A.rows
   const n = A.cols
-  const sum = makeMatrix(m, n, new Array(A.rows*A.cols))
+  const sum = makeMatrix(m, n, new Array(A.rows * A.cols))
 
   // Calculate sum
   for (let i = 0; i < m; ++i) {
@@ -171,7 +171,7 @@ export const mul = (A: Matrix, B: Matrix): Matrix => {
   }
 
   // Initialize product matrix C
-  const C = makeMatrix(A.rows, B.cols, new Array(A.rows*A.cols))
+  const C = makeMatrix(A.rows, B.cols, new Array(A.rows * B.cols))
 
   // Calculate product matrix P
   for (let i = 0; i < C.rows; ++i) {
@@ -188,7 +188,7 @@ export const mul = (A: Matrix, B: Matrix): Matrix => {
 }
 
 export const tr = (A: Matrix): Matrix => {
-  const T = makeMatrix(A.cols, A.rows, new Array(A.rows, A.cols))
+  const T = makeMatrix(A.cols, A.rows, new Array(A.rows * A.cols))
   for (let i = 0; i < A.rows; ++i) {
     for (let j = 0; j < A.cols; ++j) {
       T.data[j * A.rows + i] = A.data[i * A.cols + j]
@@ -318,7 +318,7 @@ export const toArray = (A: Matrix): Array<Array<number>> => {
 export const fromArray = (theArray: Array<Array<number>>): Matrix => {
   const rows = theArray.length
   const cols = theArray[0].length
-  const A: Matrix = makeMatrix(rows, cols, new Array(rows*cols))
+  const A: Matrix = makeMatrix(rows, cols, new Array(rows * cols))
   for (let i = 0; i < rows; ++i) {
     if (theArray[i].length !== cols) {
       throw new Error(`Element ${i} is of size ${theArray[i].length}. It must be ${cols}`)

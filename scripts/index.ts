@@ -15,14 +15,14 @@
 //   toArray,
 //   //   gramSchmidt,
 // } from "../src/matrix"
-import * as Matrix from "../src/matrix"
+// import * as Matrix from "../src/matrix"
 // pipe(makeMatrix(1, 5, [1, 2, 3, 5, 8]), print, console.log)
 // const a = makeMatrix(1, 5, [1, 2, 3, 5, 8])
 // const b = makeMatrix(1, 5, [1, 3, 5, 7, 11])
 // pipe(a, print, console.log)
 // pipe(b, print, console.log)
 // pipe(sum(a, b), print, console.log)
-const d = Matrix.makeMatrix(2, 2, [1, 3, 5, 8])
+// const d = Matrix.makeMatrix(2, 2, [1, 3, 5, 8])
 // const e = makeMatrix(2, 2, [100, 100, 100, 100])
 // pipe(d, print, console.log)
 // pipe(e, print, console.log)
@@ -37,7 +37,7 @@ const d = Matrix.makeMatrix(2, 2, [1, 3, 5, 8])
 // pipe(make(2, 1, [3, 4]), norm, console.log) // So Pythagoras was right
 // pipe(d, Matrix.toArray, JSON.stringify, console.log)
 // pipe(d, Matrix.toArray, Matrix.fromArray, Matrix.toArray, JSON.stringify, console.log)
-console.log(JSON.stringify(Matrix.toArray(Matrix.fromArray(Matrix.toArray(d)))))
+// console.log(JSON.stringify(Matrix.toArray(Matrix.fromArray(Matrix.toArray(d)))))
 // pipe([3, 4], Matrix.fromVector, Matrix.toVector, JSON.stringify, console.log)
 // pipe([3, 4], v => dot(v, [3, 4]), console.log)
 // pipe([3, 4], fromVector, A => scalarProduct(10, A), toVector, JSON.stringify, console.log)
@@ -61,15 +61,14 @@ console.log(JSON.stringify(Matrix.toArray(Matrix.fromArray(Matrix.toArray(d)))))
 // const A = makeMatrix(2, 5, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
 // console.log(toArray(A))
 
-// import { gramSchmidt, makeMatrix, tr, mul, map } from "../src/matrix"
-// import { pipe } from "fp-ts/lib/function"
-// const M = makeMatrix(3, 2, [2, 1, 2, 1, 1, 5])
-// const Q = pipe(M, tr, gramSchmidt, tr)
-// const R = mul(tr(Q), M)
-// const A = mul(Q, R)
-// console.log({ M, Q, R })
-// console.log({ M, A })
-// console.log({ M, A })
+import { gramSchmidt, makeMatrix, tr, mul, } from "../src/matrix"
+const M = makeMatrix(3, 2, [2, 1, 2, 1, 1, 5])
+const Q = tr(gramSchmidt(tr(M)))
+const R = mul(tr(Q), M)
+const A = mul(Q, R)
+console.log({ M, Q, R })
+console.log({ M, A })
+console.log({ M, A })
 
 // import { qr, makeMatrix } from '../src/matrix'
 // const A = makeMatrix(3, 2, [2, 1, 2, 1, 1, 5])
@@ -112,7 +111,7 @@ console.log(JSON.stringify(Matrix.toArray(Matrix.fromArray(Matrix.toArray(d)))))
 //   'get(b,5)': get(b,5),
 // })
 
-import { fromArray, makeMatrix, norm } from "../src/matrix"
-const A = makeMatrix(2, 2, [3, 0, 0, 4])
-const b = makeMatrix(2, 1, [3, 4])
-console.log(norm(A), norm(b))
+// import { fromArray, makeMatrix, norm } from "../src/matrix"
+// const A = makeMatrix(2, 2, [3, 0, 0, 4])
+// const b = makeMatrix(2, 1, [3, 4])
+// console.log(norm(A), norm(b))
